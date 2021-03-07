@@ -6,6 +6,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = { login: false, ready: false };
+        this.setLogin = this.setLogin.bind(this);
     }
 
     componentDidMount() {
@@ -16,8 +17,19 @@ class App extends Component {
             });
     }
 
+    setLogin(state) {
+        this.setState({ login: state });
+    }
+
     render() {
-        return this.state.ready && (this.state.login ? <Chat /> : <Login />);
+        return (
+            this.state.ready &&
+            (this.state.login ? (
+                <Chat setLogin={this.setLogin} />
+            ) : (
+                <Login setLogin={this.setLogin} />
+            ))
+        );
     }
 }
 

@@ -37,7 +37,7 @@ class Login extends Component {
                 if (server.readyState === 4 && server.status === 200) {
                     var decoded = JSON.parse(server.responseText);
                     if (decoded.login) {
-                        document.location.reload();
+                        this.props.setLogin(true);
                     } else {
                         this.setState({ message: "Wrong credentials" });
                     }
