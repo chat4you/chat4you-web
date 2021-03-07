@@ -1,18 +1,25 @@
 import { Component } from "react";
-import { Dialog } from "./components";
+import { Dialog, Dialogs } from "./components";
 import "./chat.css";
 
 class Chat extends Component {
     constructor(props) {
         super(props);
         this.state = { me: false };
+        this.logout = this.logout.bind(this);
     }
+
     componentDidMount() {
         fetch("/api/me")
             .then((data) => data.json())
             .then((data) => {
                 this.setState({ me: data });
             });
+    }
+
+    async logout() {
+        await fetch("/api/logout");
+        this.props.setLogin(false);
     }
 
     render() {
@@ -47,10 +54,15 @@ class Chat extends Component {
                         >
                             {this.state.me ? this.state.me.fullname : "..."}
                         </h1>
-                        <button id="logout">Logout</button>
+                        <button onClick={this.logout}>Logout</button>
                     </div>
                     <div className="contacts">
-                        <div className="add-contact-activate">
+                        <div
+                            className="add-contact-activate"
+                            onClick={() => {
+                                Dialog.open("request-contact");
+                            }}
+                        >
                             <button className="add-contact-button">
                                 <span className="add-contact-1"></span>
                                 <span className="add-contact-2"></span>
@@ -67,88 +79,8 @@ class Chat extends Component {
                     </div>
                 </div>
                 <div className="dialogs">
-                    <Dialog name="edit-profile">
-                        <h2>Edit Profile</h2>
-                        <form
-                            encType="multipart/form-data"
-                            action="/api/me/profile-update"
-                            name="editProfile"
-                            // onsubmit="return(validateProfile())"
-                            method="POST"
-                        >
-                            <table id="edit-profile-table">
-                                <tbody>
-                                    <tr>
-                                        <th>
-                                            <label htmlFor="profile-upload">
-                                                <div className="profile-image"></div>
-                                            </label>
-                                        </th>
-                                        <th>
-                                            <input
-                                                type="file"
-                                                id="profile-upload"
-                                                name="profileImage"
-                                            />
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            <label htmlFor="name-edit">
-                                                Full Name:
-                                            </label>
-                                        </th>
-                                        <th>
-                                            <input
-                                                type="text"
-                                                id="name-edit"
-                                                name="fullname"
-                                                defaultValue={
-                                                    this.state.me.fullname
-                                                }
-                                            />
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            <label htmlFor="email-edit">
-                                                E-mail:
-                                            </label>
-                                        </th>
-                                        <th>
-                                            <input
-                                                type="text"
-                                                id="email-edit"
-                                                name="email"
-                                                defaultValue={
-                                                    this.state.me.email
-                                                }
-                                            />
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <th colSpan="2">
-                                            <button
-                                                type="submit"
-                                                id="save-profile"
-                                            >
-                                                Save
-                                            </button>
-                                        </th>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </form>
-                    </Dialog>
-                    <Dialog name="request-contact">
-                        <input
-                            type="text"
-                            id="add-contact-input"
-                            placeholder="Enter the username"
-                            autoFocus
-                        />
-                        <button id="add-contact-enter">Request</button>
-                    </Dialog>
+                    <Dialogs.EditProfile me={this.state.me} />
+                    <Dialogs.RequestContact />
                 </div>
             </div>
         );

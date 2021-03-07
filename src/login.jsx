@@ -51,7 +51,7 @@ class Login extends Component {
 
     render() {
         return (
-            <div class="login-container">
+            <div className="login-container">
                 <div className="login">
                     <h1>Login</h1>
                     <input
