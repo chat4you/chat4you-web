@@ -101,6 +101,7 @@ class Chat extends Component {
                             <h2>Add contact</h2>
                         </div>
                         <ContactList
+                            me={this.state.me}
                             socket={this.state.socketReady && this.socket}
                         />
                     </div>

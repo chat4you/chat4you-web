@@ -136,14 +136,6 @@ textarea,
     transform: rotate(90deg);
 }
 
-/* Contact container */
-
-.contact-list {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-}
-
 /* Statusbar */
 
 .statusbar {

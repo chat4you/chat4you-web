@@ -1,0 +1,28 @@
+/* Contact container */
+
+.contact-list {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.contact {
+    display: flex;
+    cursor: pointer;
+    flex: 0 1 50px;
+    padding: 5px;
+    transition: all 0.2s ease-in-out, transform 0.1s linear;
+}
+
+.contact:active {
+    transform: scale(0.9);
+}
+
+.contact .info {
+    user-select: none;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
