@@ -1,0 +1,6 @@
+.conversations {
+    flex: 1;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+}

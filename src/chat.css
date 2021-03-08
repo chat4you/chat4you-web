@@ -66,13 +66,6 @@ textarea,
     padding-right: 5px;
 }
 
-.message-container {
-    flex: 1;
-    box-sizing: border-box;
-    overflow: hidden;
-    display: flex;
-}
-
 .messages-header {
     position: relative;
     flex: 0 1 1em;

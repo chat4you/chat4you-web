@@ -1,11 +1,23 @@
-import { Component } from "react";
-import { Dialog, Dialogs } from "./components";
+import { Component, createRef } from "react";
+import {
+    Dialog,
+    Dialogs,
+    ConversationManager,
+    ContactList,
+} from "./components";
 import "./chat.css";
+import io from "socket.io-client";
 
 class Chat extends Component {
     constructor(props) {
         super(props);
-        this.state = { me: false };
+        this.state = {
+            me: false,
+            openConversations: [],
+            activeConversation: null,
+            socketReady: false,
+        };
+        this.connectionStatus = createRef();
         this.logout = this.logout.bind(this);
     }
 
@@ -15,6 +27,22 @@ class Chat extends Component {
             .then((data) => {
                 this.setState({ me: data });
             });
+        //Initialize the socket
+
+        this.socket = io();
+        this.socket.on("auth", (data) => {
+            if (data.status === "succes") {
+                this.connectionStatus.current.classList.add("online");
+                this.setState({ socketReady: true });
+            } else {
+                this.setState({ socketReady: false });
+                alert("Cookie verification failed!");
+                document.cookie = "";
+                document.location.reload();
+            }
+        });
+        this.socket.emit("auth", document.cookie);
+        this.setState({ socketReady: true });
     }
 
     async logout() {
@@ -28,11 +56,14 @@ class Chat extends Component {
                 <div className="messages">
                     <div className="messages-header">
                         <h1 id="chat-name">
-                            Welcome, &nbsp;
-                            {this.state.me ? this.state.me.name : "..."}!
+                            Welcome, &nbsp; {this.state.me?.name || "..."}!
                         </h1>
                     </div>
-                    <div className="message-container"></div>
+                    <ConversationManager
+                        conversations={this.state.openConversations}
+                        active={this.state.activeConversation}
+                        socket={this.socket}
+                    />
                     <div className="message-input">
                         <textarea
                             id="input-message"
@@ -52,7 +83,7 @@ class Chat extends Component {
                                 Dialog.open("edit-profile");
                             }}
                         >
-                            {this.state.me ? this.state.me.fullname : "..."}
+                            {this.state.me?.fullname || "..."}
                         </h1>
                         <button onClick={this.logout}>Logout</button>
                     </div>
@@ -69,12 +100,17 @@ class Chat extends Component {
                             </button>
                             <h2>Add contact</h2>
                         </div>
-                        <div className="contact-list"></div>
+                        <ContactList
+                            socket={this.state.socketReady && this.socket}
+                        />
                     </div>
                     <div className="statusbar">
                         <div className="item">
                             <span>Connection:</span>
-                            <i id="connection-status"></i>
+                            <i
+                                id="connection-status"
+                                ref={this.connectionStatus}
+                            ></i>
                         </div>
                     </div>
                 </div>
