@@ -1,9 +1,10 @@
-import { Component, createRef } from "react";
+import { Component } from "react";
 import {
     Dialog,
     Dialogs,
     ConversationManager,
     ContactList,
+    ConnectionStatus,
 } from "./components";
 import "./chat.css";
 import io from "socket.io-client";
@@ -17,7 +18,6 @@ class Chat extends Component {
             activeConversation: null,
             socketReady: false,
         };
-        this.connectionStatus = createRef();
         this.logout = this.logout.bind(this);
     }
 
@@ -32,7 +32,6 @@ class Chat extends Component {
         this.socket = io();
         this.socket.on("auth", (data) => {
             if (data.status === "succes") {
-                this.connectionStatus.current.classList.add("online");
                 this.setState({ socketReady: true });
             } else {
                 this.setState({ socketReady: false });
@@ -40,6 +39,14 @@ class Chat extends Component {
                 document.cookie = "";
                 document.location.reload();
             }
+        });
+        this.socket.io.on("reconnect", () => {
+            this.socket = io();
+            this.componentDidMount();
+            this.setState({ socketReady: true });
+        });
+        this.socket.on("disconnect", () => {
+            this.setState({ socketReady: false });
         });
         this.socket.emit("auth", document.cookie);
         this.setState({ socketReady: true });
@@ -105,15 +112,7 @@ class Chat extends Component {
                             socket={this.state.socketReady && this.socket}
                         />
                     </div>
-                    <div className="statusbar">
-                        <div className="item">
-                            <span>Connection:</span>
-                            <i
-                                id="connection-status"
-                                ref={this.connectionStatus}
-                            ></i>
-                        </div>
-                    </div>
+                    <ConnectionStatus connection={this.state.socketReady} />
                 </div>
                 <div className="dialogs">
                     <Dialogs.EditProfile me={this.state.me} />
