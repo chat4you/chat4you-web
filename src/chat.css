@@ -1,0 +1,265 @@
+/* Base element definitions */
+body {
+    perspective: 500px;
+}
+#chat-app {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+#profile-name {
+    cursor: pointer;
+    user-select: none;
+}
+
+h1 {
+    margin: 10px;
+}
+
+button {
+    border: 1px solid var(--main-color);
+    border-radius: 2px;
+    padding: 5px;
+}
+
+button:hover {
+    background-color: var(--main-color);
+    color: var(--background);
+}
+
+button:active {
+    animation: click 0.2s linear;
+}
+
+input,
+textarea,
+#input-message {
+    border: 1px solid var(--main-color);
+    border-radius: 2px;
+    padding: 5px;
+    resize: none;
+}
+
+/* Navigation and message input */
+
+.messages {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--background);
+}
+
+.navigation {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-lite);
+}
+
+.header {
+    flex: 0 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    border-bottom: 1px solid var(--main-color);
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.messages-header {
+    position: relative;
+    flex: 0 1 1em;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--main-color);
+    box-shadow: 0px 5px 30px 15px var(--background-lite);
+}
+
+.message-input {
+    flex: 0 1 3em;
+    display: flex;
+    padding: 5px;
+    box-shadow: 3px 0px 5px var(--shadow-color) inset,
+        0px 0px 10px var(--shadow-color) inset;
+}
+
+#send {
+    flex: 0 1 20%;
+}
+
+#input-message {
+    flex: 1 1 auto;
+    margin-right: 5px;
+    overflow-y: auto;
+}
+
+/* The add contact button */
+
+.add-contact-activate {
+    flex: 0 1 70px;
+    display: flex;
+    padding: 10px;
+    justify-content: flex-start;
+    align-items: center;
+    border-bottom: 1px solid var(--main-color);
+}
+
+.add-contact-activate h2 {
+    margin-left: 10px;
+}
+
+.add-contact-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--forderground-color);
+    height: 50px;
+    width: 50px;
+    border: none;
+    border-radius: 25px;
+}
+
+.add-contact-button span {
+    display: block;
+    position: absolute;
+    height: 5px;
+    width: 35px;
+    border-radius: 5px;
+    background-color: var(--main-color);
+}
+
+.add-contact-button:hover span {
+    background-color: var(--forderground-color);
+}
+
+.add-contact-1 {
+    transform: rotate(90deg);
+}
+
+/* Statusbar */
+
+.statusbar {
+    display: flex;
+    position: absolute;
+    bottom: 0px;
+    height: 30px;
+    width: 100%;
+    padding: 5px;
+    border-top: 1px solid var(--main-color);
+}
+
+.statusbar > :first-child {
+    border-left: none !important;
+}
+
+.statusbar .item {
+    flex: 1 0;
+    vertical-align: middle;
+    border-left: 1px solid var(--main-color);
+}
+
+#connection-status {
+    position: absolute;
+    background: url("./images/disconnected.svg");
+    background-size: cover;
+    margin-left: 5px;
+    height: 19px;
+    width: 19px;
+}
+
+#connection-status.online {
+    background: url("./images/connected.svg");
+    background-size: cover;
+}
+
+/* Animation keyframes */
+
+@keyframes fadeIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0px);
+        opacity: 1;
+    }
+}
+
+@keyframes click {
+    from {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.9);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes close {
+    from {
+        transform: translateX(0%);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(40%);
+        opacity: 0.2;
+    }
+}
+
+/* Design for desktop */
+@media only screen and (min-width: 720px) {
+    #content {
+        display: flex;
+    }
+    .navigation {
+        border-left: 1px solid var(--main-color);
+        z-index: 1;
+        flex: 0 0 30%;
+    }
+
+    #back2menu {
+        display: none;
+        visibility: hidden;
+    }
+}
+
+/* Desing for mobile */
+@media only screen and (max-width: 720px) {
+    .navigation,
+    .messages {
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        right: 0px;
+        left: 0px;
+    }
+
+    .messages {
+        height: 100%;
+        width: 100vw;
+        transform: translateX(-100vw);
+        z-index: 1;
+        opacity: 0;
+        transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+        background-color: var(--background);
+    }
+
+    .messages.show {
+        transform: translateX(0vw);
+        opacity: 1;
+    }
+
+    #back2menu {
+        border: none;
+        margin: auto;
+        margin-right: 5px;
+    }
+
+    #back2menu:active #path20 {
+        stroke: var(--background);
+    }
+}

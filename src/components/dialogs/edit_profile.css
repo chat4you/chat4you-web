@@ -1,0 +1,15 @@
+/* Edit profile */
+
+#edit-profile-table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+#edit-profile-table th {
+    padding: 5px;
+}
+
+#edit-profile-table th * {
+    width: 100%;
+}
