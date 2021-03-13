@@ -1,5 +1,7 @@
 /* Base element definitions */
-
+body {
+    perspective: 500px;
+}
 #chat-app {
     display: flex;
     width: 100%;

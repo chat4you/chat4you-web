@@ -9,13 +9,19 @@
 .contact {
     display: flex;
     cursor: pointer;
-    flex: 0 1 50px;
-    padding: 5px;
+    flex: 0 1 60px;
+    height: 60px;
+    padding: 10px;
+    align-items: center;
     transition: all 0.2s ease-in-out, transform 0.1s linear;
 }
 
 .contact:active {
     transform: scale(0.9);
+}
+
+.contact:hover {
+    background-color: var(--background-lite);
 }
 
 .contact .info {

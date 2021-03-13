@@ -1,5 +1,6 @@
 import { Component } from "react";
 import "./contacts.css";
+import { FullName, ProfileImage } from ".";
 
 class Contact extends Component {
     constructor(props) {
@@ -9,23 +10,31 @@ class Contact extends Component {
 
     componentDidMount() {
         const conversation = this.props.data;
-        console.log(conversation);
         this.setState({
             name:
-                conversation.type === "group"
-                    ? conversation.name
-                    : conversation.members[
-                          Math.abs(
-                              conversation.members.indexOf(this.props.me.name)
-                          )
-                      ],
+                conversation.type === "group" ? (
+                    conversation.name
+                ) : (
+                    <FullName
+                        id={
+                            conversation.members[
+                                Math.abs(
+                                    conversation.members.indexOf(
+                                        this.props.me.name
+                                    )
+                                )
+                            ]
+                        }
+                    />
+                ),
         });
     }
 
     render() {
         return (
             // Continue here
-            <div className="contact">
+            <div className="contact" onClick={this.props.onClick}>
+                <ProfileImage size={40} id={this.props.data.id} />
                 <div className="info">
                     <h3 className="name">{this.state.name}</h3>
                     <div className="data"></div>
@@ -38,7 +47,6 @@ class Contact extends Component {
 class ContactList extends Component {
     constructor(props) {
         super(props);
-        console.log(props);
         this.state = {
             contacts: [],
         };
@@ -56,7 +64,14 @@ class ContactList extends Component {
         return (
             <div className="contact-list">
                 {this.state.contacts.map((contact) => (
-                    <Contact data={contact} me={this.props.me} />
+                    <Contact
+                        key={contact.id}
+                        data={contact}
+                        me={this.props.me}
+                        onClick={() => {
+                            this.props.conversation.open(contact);
+                        }}
+                    />
                 ))}
             </div>
         );

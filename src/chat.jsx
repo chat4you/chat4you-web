@@ -110,6 +110,7 @@ class Chat extends Component {
                         <ContactList
                             me={this.state.me}
                             socket={this.state.socketReady && this.socket}
+                            conversation={ConversationManager}
                         />
                     </div>
                     <ConnectionStatus connection={this.state.socketReady} />
