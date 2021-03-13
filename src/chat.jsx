@@ -61,25 +61,13 @@ class Chat extends Component {
         return (
             <div id="chat-app">
                 <div className="messages">
-                    <div className="messages-header">
-                        <h1 id="chat-name">
-                            Welcome, &nbsp; {this.state.me?.name || "..."}!
-                        </h1>
-                    </div>
                     <ConversationManager
                         conversations={this.state.openConversations}
                         active={this.state.activeConversation}
                         socket={this.socket}
+                        me={this.state.me}
+                        ctl={ContactList}
                     />
-                    <div className="message-input">
-                        <textarea
-                            id="input-message"
-                            disabled="disabled"
-                        ></textarea>
-                        <button id="send" disabled="disabled">
-                            Send
-                        </button>
-                    </div>
                 </div>
                 <div className="navigation">
                     <div className="header">

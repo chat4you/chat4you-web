@@ -10,23 +10,23 @@ class Contact extends Component {
 
     componentDidMount() {
         const conversation = this.props.data;
+        let name = conversation.name;
+        if (conversation.type === "chat") {
+            name = (
+                <FullName
+                    id={
+                        conversation.members[
+                            Math.abs(
+                                conversation.members.indexOf(this.props.me.name)
+                            )
+                        ]
+                    }
+                />
+            );
+            ContactList.byId[conversation.id].name = name;
+        }
         this.setState({
-            name:
-                conversation.type === "group" ? (
-                    conversation.name
-                ) : (
-                    <FullName
-                        id={
-                            conversation.members[
-                                Math.abs(
-                                    conversation.members.indexOf(
-                                        this.props.me.name
-                                    )
-                                )
-                            ]
-                        }
-                    />
-                ),
+            name: name,
         });
     }
 
@@ -45,6 +45,7 @@ class Contact extends Component {
 }
 
 class ContactList extends Component {
+    static byId = {};
     constructor(props) {
         super(props);
         this.state = {
@@ -56,6 +57,9 @@ class ContactList extends Component {
         fetch("/api/me/contacts")
             .then((data) => data.json())
             .then((data) => {
+                data.forEach((contact) => {
+                    ContactList.byId[contact.id] = contact;
+                });
                 this.setState({ contacts: data });
             });
     }
