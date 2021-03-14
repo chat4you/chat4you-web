@@ -18,7 +18,7 @@
 }
 
 .conversation > :first-child {
-    margin-top: auto !important;
+    margin-top: auto !important; /* For scrolling */
 }
 
 .conversation .message-line {
