@@ -1,13 +1,8 @@
 import { Component, Fragment } from "react";
-import "./conversations.css";
+import "./conversation.css";
+import { Message } from ".";
 
 class Conversation extends Component {
-    static conversations = {};
-    static lastOpen = false;
-    static open = (id) => {
-        Conversation.conversations[id].setState({ open: true });
-        Conversation.lastOpen = Conversation.conversations[id];
-    };
     constructor(props) {
         super(props);
         this.state = { messages: [], online: [], info: null, open: false };
@@ -15,12 +10,26 @@ class Conversation extends Component {
     }
 
     componentDidMount() {
-        Conversation.conversations[this.props.id] = this;
-        // fetch data from server & socket
+        ConversationManager.byId[this.props.id] = this;
+        this.socket.on("getMessages", (data) => {
+            if (data.id === this.props.id) {
+                if (data.status === "succes") {
+                    this.setState({ messages: data.result });
+                    ConversationManager.instance.setState({ open: true });
+                } else {
+                    throw new Error("Failed to get messages");
+                }
+            }
+        });
+        this.socket.emit("getMessages", { id: this.props.id });
+    }
+
+    componentDidUpdate() {
+        this.el.scrollTop = this.el.scrollHeight;
     }
 
     componentWillUnmount() {
-        delete Conversation.conversations[this.props.id];
+        delete ConversationManager.byId[this.props.id];
     }
 
     render() {
@@ -29,22 +38,34 @@ class Conversation extends Component {
                 className={
                     this.state.open ? "conversation open" : "conversation"
                 }
-            ></div>
+                ref={(el) => (this.el = el)}
+            >
+                {this.state.messages.map((message) => (
+                    <Message me={this.props.me} data={message} />
+                ))}
+            </div>
         );
     }
 }
 
 class ConversationManager extends Component {
+    static byId = {};
+    static lastOpen = false;
     static instance;
-    static open = async (data) => {
-        if (data.id in Conversation.conversations) {
-            Conversation.open(data.id);
-        } else {
+    static open = async (data, loop = false) => {
+        ConversationManager.lastOpen &&
+            ConversationManager.lastOpen.setState({ open: false }); // Close last open chat
+        ConversationManager.instance.setState({ open: false }); // The conversation will unlock itself when it got all messages
+        if (data.id in ConversationManager.byId) {
+            ConversationManager.byId[data.id].setState({ open: true });
+            ConversationManager.lastOpen = ConversationManager.byId[data.id];
+        } else if (!loop) {
             await ConversationManager.instance.setState((state, props) => ({
                 conversations: state.conversations.concat(data),
-            }));
-            Conversation.open(data.id);
-            ConversationManager.instance.setState({ open: true });
+            })); // Wait for the conversation to load
+            ConversationManager.open(data, (loop = true));
+        } else {
+            throw new Error("Failed to open conversation, loop");
         }
     };
 
@@ -59,9 +80,9 @@ class ConversationManager extends Component {
             <Fragment>
                 <div className="messages-header">
                     <h1 id="chat-name">
-                        {Conversation.lastOpen
+                        {ConversationManager.lastOpen
                             ? this.props.ctl.byId[
-                                  Conversation.lastOpen.props.id
+                                  ConversationManager.lastOpen.props.id
                               ].name
                             : `Welcome, ${this.props.me?.name || "..."}!`}
                     </h1>
@@ -73,6 +94,8 @@ class ConversationManager extends Component {
                                 key={conversation.id}
                                 id={conversation.id}
                                 active={conversation.id === this.props.active}
+                                me={this.props.me}
+                                socket={this.props.socket}
                             />
                         );
                     })}

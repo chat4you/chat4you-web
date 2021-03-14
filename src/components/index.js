@@ -5,3 +5,4 @@ export { ContactList } from "./contacts";
 export { ConnectionStatus } from "./status";
 export { FullName } from "./fullname";
 export { ProfileImage } from "./profile_image";
+export { Message } from "./message";

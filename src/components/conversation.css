@@ -1,0 +1,26 @@
+.conversations {
+    flex: 1;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+.conversation {
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    width: 100%;
+    height: 100%;
+}
+
+.conversation > :first-child {
+    margin-top: auto !important;
+}
+
+.conversation .message-line {
+    margin-top: 5px;
+}
