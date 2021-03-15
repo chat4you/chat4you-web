@@ -50,29 +50,87 @@ class Conversation extends Component {
 
 class ConversationManager extends Component {
     static byId = {};
-    static lastOpen = false;
+    static current = false;
     static instance;
-    static open = async (data, loop = false) => {
-        ConversationManager.lastOpen &&
-            ConversationManager.lastOpen.setState({ open: false }); // Close last open chat
-        ConversationManager.instance.setState({ open: false }); // The conversation will unlock itself when it got all messages
+
+    static async open(data, loop = false) {
+        ConversationManager.current &&
+            ConversationManager.current.setState({ open: false });
+        // The conversation will unlock itself when it got all messages
+        ConversationManager.instance.setState({ open: false });
+
         if (data.id in ConversationManager.byId) {
             ConversationManager.byId[data.id].setState({ open: true });
-            ConversationManager.lastOpen = ConversationManager.byId[data.id];
+            ConversationManager.current = ConversationManager.byId[data.id];
         } else if (!loop) {
-            await ConversationManager.instance.setState((state, props) => ({
+            // Wait for the conversation to load
+            await ConversationManager.instance.setState((state) => ({
                 conversations: state.conversations.concat(data),
-            })); // Wait for the conversation to load
+            }));
+            // Re-open with 'loop' set to true to prevent looping
             ConversationManager.open(data, (loop = true));
         } else {
             throw new Error("Failed to open conversation, loop");
         }
-    };
+    }
+
+    static addMessage(id, message) {
+        if (!(id in ConversationManager.byId)) {
+            // TBD: move contact to top and show notification
+            return;
+        }
+        ConversationManager.byId[id].setState((state) => ({
+            messages: state.messages.concat(message),
+        }));
+    }
+
+    static sendMessage(message) {
+        ConversationManager.instance.sendMessage(message);
+    }
 
     constructor(props) {
         super(props);
         this.state = { conversations: [], open: false };
+        this.socket = this.props.socket;
+        this.textSubmit = this.textSubmit.bind(this);
+        this.buttonSubmit = this.buttonSubmit.bind(this);
         ConversationManager.instance = this;
+    }
+
+    componentDidMount() {
+        this.socket.on("message", (data) => {
+            if (data.status === "succes") {
+                // do something with the message
+            } else if (data.status === "error") {
+                console.log(data);
+                console.error(`Message Error: ${data.message}`);
+            } else {
+                console.error(`Undefined return status: ${data.status}`);
+            }
+        });
+    }
+
+    sendMessage(message) {
+        this.socket.emit("message", message);
+    }
+
+    buttonSubmit() {
+        let text = this.messageInput.value;
+        if (/\s/.test(text)) return;
+        let message = {
+            conversation: ConversationManager.current.props.id,
+            type: "text",
+            content: text,
+        };
+        this.sendMessage(message);
+        this.messageInput.value = "";
+    }
+
+    textSubmit(e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            this.buttonSubmit();
+        }
     }
 
     render() {
@@ -80,9 +138,9 @@ class ConversationManager extends Component {
             <Fragment>
                 <div className="messages-header">
                     <h1 id="chat-name">
-                        {ConversationManager.lastOpen
+                        {ConversationManager.current
                             ? this.props.ctl.byId[
-                                  ConversationManager.lastOpen.props.id
+                                  ConversationManager.current.props.id
                               ].name
                             : `Welcome, ${this.props.me?.name || "..."}!`}
                     </h1>
@@ -104,8 +162,14 @@ class ConversationManager extends Component {
                     <textarea
                         id="input-message"
                         disabled={!this.state.open}
+                        onKeyDown={this.textSubmit}
+                        ref={(el) => (this.messageInput = el)}
                     ></textarea>
-                    <button id="send" disabled={!this.state.open}>
+                    <button
+                        id="send"
+                        disabled={!this.state.open}
+                        onClick={this.buttonSubmit}
+                    >
                         Send
                     </button>
                 </div>

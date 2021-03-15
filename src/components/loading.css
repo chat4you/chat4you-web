@@ -1,0 +1,31 @@
+.loading {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    background-color: var(--bacground);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.rotating {
+    animation: rotate 1s ease-in-out 0s infinite;
+}
+
+@keyframes rotate {
+    from {
+        tranform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

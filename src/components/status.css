@@ -1,0 +1,35 @@
+/* Statusbar */
+
+.statusbar {
+    display: flex;
+    position: absolute;
+    bottom: 0px;
+    height: 30px;
+    width: 100%;
+    padding: 5px;
+    border-top: 1px solid var(--main-color);
+}
+
+.statusbar > :first-child {
+    border-left: none !important;
+}
+
+.statusbar .item {
+    flex: 1 0;
+    vertical-align: middle;
+    border-left: 1px solid var(--main-color);
+}
+
+#connection-status {
+    position: absolute;
+    background: url("../images/disconnected.svg");
+    background-size: cover;
+    margin-left: 5px;
+    height: 19px;
+    width: 19px;
+}
+
+#connection-status.online {
+    background: url("../images/connected.svg");
+    background-size: cover;
+}

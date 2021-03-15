@@ -5,6 +5,7 @@ import {
     ConversationManager,
     ContactList,
     ConnectionStatus,
+    Loader,
 } from "./components";
 import "./chat.css";
 import io from "socket.io-client";
@@ -27,7 +28,6 @@ class Chat extends Component {
             .then((data) => {
                 this.setState({ me: data });
             });
-        //Initialize the socket
 
         this.socket = io();
         this.socket.on("auth", (data) => {
@@ -58,57 +58,61 @@ class Chat extends Component {
     }
 
     render() {
-        return (
-            <div id="chat-app">
-                <div className="messages">
-                    <ConversationManager
-                        conversations={this.state.openConversations}
-                        active={this.state.activeConversation}
-                        socket={this.socket}
-                        me={this.state.me}
-                        ctl={ContactList}
-                    />
-                </div>
-                <div className="navigation">
-                    <div className="header">
-                        <div className="profile-image"></div>
-                        <h1
-                            id="profile-name"
-                            onClick={() => {
-                                Dialog.open("edit-profile");
-                            }}
-                        >
-                            {this.state.me?.fullname || "..."}
-                        </h1>
-                        <button onClick={this.logout}>Logout</button>
-                    </div>
-                    <div className="contacts">
-                        <div
-                            className="add-contact-activate"
-                            onClick={() => {
-                                Dialog.open("request-contact");
-                            }}
-                        >
-                            <button className="add-contact-button">
-                                <span className="add-contact-1"></span>
-                                <span className="add-contact-2"></span>
-                            </button>
-                            <h2>Add contact</h2>
-                        </div>
-                        <ContactList
+        if (!this.state.socketReady) {
+            return <Loader />;
+        } else {
+            return (
+                <div id="chat-app">
+                    <div className="messages">
+                        <ConversationManager
+                            conversations={this.state.openConversations}
+                            active={this.state.activeConversation}
+                            socket={this.socket}
                             me={this.state.me}
-                            socket={this.state.socketReady && this.socket}
-                            conversation={ConversationManager}
+                            ctl={ContactList}
                         />
                     </div>
-                    <ConnectionStatus connection={this.state.socketReady} />
+                    <div className="navigation">
+                        <div className="header">
+                            <div className="profile-image"></div>
+                            <h1
+                                id="profile-name"
+                                onClick={() => {
+                                    Dialog.open("edit-profile");
+                                }}
+                            >
+                                {this.state.me?.fullname || "..."}
+                            </h1>
+                            <button onClick={this.logout}>Logout</button>
+                        </div>
+                        <div className="contacts">
+                            <div
+                                className="add-contact-activate"
+                                onClick={() => {
+                                    Dialog.open("request-contact");
+                                }}
+                            >
+                                <button className="add-contact-button">
+                                    <span className="add-contact-1"></span>
+                                    <span className="add-contact-2"></span>
+                                </button>
+                                <h2>Add contact</h2>
+                            </div>
+                            <ContactList
+                                me={this.state.me}
+                                socket={this.state.socketReady && this.socket}
+                                conversation={ConversationManager}
+                            />
+                        </div>
+                        <ConnectionStatus connection={this.state.socketReady} />
+                    </div>
+                    <div className="dialogs">
+                        <Dialogs.EditProfile me={this.state.me} />
+                        <Dialogs.RequestContact />
+                    </div>
                 </div>
-                <div className="dialogs">
-                    <Dialogs.EditProfile me={this.state.me} />
-                    <Dialogs.RequestContact />
-                </div>
-            </div>
-        );
+            );
+        }
     }
 }
 

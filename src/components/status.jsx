@@ -1,4 +1,5 @@
 import { Component } from "react";
+import "./status.css";
 
 class ConnectionStatus extends Component {
     constructor(props) {
