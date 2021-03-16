@@ -10,10 +10,10 @@
     max-width: 60%;
     background-color: var(--forderground-color);
     padding: 5px;
-    
     border-radius: 5px;
     border-left: 5px solid var(--main-color);
     box-shadow: 2px 2px 5px var(--shadow-color);
+    animation: appear .2s;
 }
 
 .message-type.text {
@@ -25,4 +25,15 @@
     align-self: flex-end;
     border-right: 5px solid var(--main-color);
     border-left: none;
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0px);
+    }
 }
