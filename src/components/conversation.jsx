@@ -11,21 +11,18 @@ class Conversation extends Component {
 
     componentDidMount() {
         ConversationManager.byId[this.props.id] = this;
-        this.socket.on("getMessages", (data) => {
+        this.socket.on("getMessages", async (data) => {
             if (data.id === this.props.id) {
                 if (data.status === "succes") {
-                    this.setState({ messages: data.result });
+                    await this.setState({ messages: data.result });
                     ConversationManager.instance.setState({ open: true });
+                    this.el.scrollTop = this.el.scrollHeight;
                 } else {
                     throw new Error("Failed to get messages");
                 }
             }
         });
         this.socket.emit("getMessages", { id: this.props.id });
-    }
-
-    componentDidUpdate() {
-        this.el.scrollTop = this.el.scrollHeight;
     }
 
     componentWillUnmount() {
@@ -74,14 +71,16 @@ class ConversationManager extends Component {
         }
     }
 
-    static addMessage(id, message) {
-        if (!(id in ConversationManager.byId)) {
+    static async addMessage(message) {
+        if (!(message.id in ConversationManager.byId)) {
             // TBD: move contact to top and show notification
             return;
         }
-        ConversationManager.byId[id].setState((state) => ({
-            messages: state.messages.concat(message),
+        let conversation = ConversationManager.byId[message.id];
+        await conversation?.setState((state) => ({
+            messages: state.messages.concat(message.data),
         }));
+        conversation.el.scrollTop = conversation.el.scrollHeight;
     }
 
     static sendMessage(message) {
@@ -100,9 +99,8 @@ class ConversationManager extends Component {
     componentDidMount() {
         this.socket.on("message", (data) => {
             if (data.status === "succes") {
-                // do something with the message
+                ConversationManager.addMessage(data);
             } else if (data.status === "error") {
-                console.log(data);
                 console.error(`Message Error: ${data.message}`);
             } else {
                 console.error(`Undefined return status: ${data.status}`);

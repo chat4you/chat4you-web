@@ -57,10 +57,14 @@ class ContactList extends Component {
         fetch("/api/me/contacts")
             .then((data) => data.json())
             .then((data) => {
-                data.forEach((contact) => {
-                    ContactList.byId[contact.id] = contact;
-                });
-                this.setState({ contacts: data });
+                if (data.status === "succes") {
+                    data.data.forEach((contact) => {
+                        ContactList.byId[contact.id] = contact;
+                    });
+                    this.setState({ contacts: data.data });
+                } else {
+                    console.error("Failed to get contacts");
+                }
             });
     }
 

@@ -7,11 +7,11 @@ class Message extends Component {
         this.state = { content: <i></i>, me: false };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         let message = this.props.data;
         switch (message.type) {
             case "text":
-                this.setState({
+                await this.setState({
                     content: (
                         <p className="message-type text">{message.content}</p>
                     ),
@@ -22,16 +22,17 @@ class Message extends Component {
                 throw new Error(`Unknown message type: ${message.type}`);
         }
         if (this.props.me.id === message.sent_by) {
-            this.setState({ me: true });
+            await this.setState({ me: true });
         }
     }
 
     render() {
         return (
-            <div className="message-line">
-                <div className={this.state.me ? "message me" : "message"}>
-                    {this.state.content}
-                </div>
+            <div
+                className={this.state.me ? "message-line me" : "message-line"}
+                ref={(el) => (this.el = el)}
+            >
+                <div className="message">{this.state.content}</div>
             </div>
         );
     }

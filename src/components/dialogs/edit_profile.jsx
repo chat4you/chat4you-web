@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { Dialog } from "../dialog";
+import { ProfileImage } from "../";
 import "./edit_profile.css";
 
 class EditProfile extends Component {
@@ -19,7 +20,10 @@ class EditProfile extends Component {
                             <tr>
                                 <th>
                                     <label htmlFor="profile-upload">
-                                        <div className="profile-image"></div>
+                                        <ProfileImage
+                                            id={this.props.me.id}
+                                            size={20}
+                                        />
                                     </label>
                                 </th>
                                 <th>

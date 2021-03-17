@@ -6,6 +6,7 @@ import {
     ContactList,
     ConnectionStatus,
     Loader,
+    ProfileImage,
 } from "./components";
 import "./chat.css";
 import io from "socket.io-client";
@@ -26,7 +27,9 @@ class Chat extends Component {
         fetch("/api/me")
             .then((data) => data.json())
             .then((data) => {
-                this.setState({ me: data });
+                this.setState({
+                    me: data.status === "succes" && data.data,
+                });
             });
 
         this.socket = io();
@@ -74,7 +77,7 @@ class Chat extends Component {
                     </div>
                     <div className="navigation">
                         <div className="header">
-                            <div className="profile-image"></div>
+                            <ProfileImage id={this.state.me.id} size={40} />
                             <h1
                                 id="profile-name"
                                 onClick={() => {
