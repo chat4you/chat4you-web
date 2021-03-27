@@ -7,6 +7,7 @@ import {
     ConnectionStatus,
     Loader,
     ProfileImage,
+    FullName,
 } from "./components";
 import "./chat.css";
 import io from "socket.io-client";
@@ -15,7 +16,7 @@ class Chat extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            me: false,
+            me: {},
             openConversations: [],
             activeConversation: null,
             socketReady: false,
@@ -84,7 +85,7 @@ class Chat extends Component {
                                     Dialog.open("edit-profile");
                                 }}
                             >
-                                {this.state.me?.fullname || "..."}
+                                <FullName id={this.state.me.id} />
                             </h1>
                             <button onClick={this.logout}>Logout</button>
                         </div>

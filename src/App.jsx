@@ -1,6 +1,7 @@
 import { Component } from "react";
 import { Login } from "./login";
 import { Chat } from "./chat";
+import { Loader } from "./components";
 
 class App extends Component {
     constructor(props) {
@@ -22,13 +23,14 @@ class App extends Component {
     }
 
     render() {
-        return (
-            this.state.ready &&
-            (this.state.login ? (
+        return this.state.ready ? (
+            this.state.login ? (
                 <Chat setLogin={this.setLogin} />
             ) : (
                 <Login setLogin={this.setLogin} />
-            ))
+            )
+        ) : (
+            <Loader />
         );
     }
 }

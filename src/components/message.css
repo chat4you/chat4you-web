@@ -6,7 +6,6 @@
 }
 
 .message {
-    flex: 0 1;
     max-width: 60%;
     background-color: var(--forderground-color);
     padding: 5px;

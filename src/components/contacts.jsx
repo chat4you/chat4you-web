@@ -5,38 +5,38 @@ import { FullName, ProfileImage } from ".";
 class Contact extends Component {
     constructor(props) {
         super(props);
-        this.state = { name: "" };
+        this.state = { type: "", id: null };
     }
 
     componentDidMount() {
         const conversation = this.props.data;
-        let name = conversation.name;
         if (conversation.type === "chat") {
-            name = (
-                <FullName
-                    id={
-                        conversation.members[
-                            Math.abs(
-                                conversation.members.indexOf(this.props.me.name)
-                            )
-                        ]
-                    }
-                />
-            );
-            ContactList.byId[conversation.id].name = name;
+            this.setState({
+                id:
+                    conversation.members[
+                        Math.abs(
+                            conversation.members.indexOf(this.props.me.id) - 1
+                        )
+                    ],
+                type: "chat",
+            });
+            ContactList.byId[conversation.id] = this;
         }
-        this.setState({
-            name: name,
-        });
     }
 
     render() {
         return (
             // Continue here
             <div className="contact" onClick={this.props.onClick}>
-                <ProfileImage size={40} id={this.props.data.id} />
+                <ProfileImage
+                    size={40}
+                    id={this.state.id}
+                    type={this.state.type}
+                />
                 <div className="info">
-                    <h3 className="name">{this.state.name}</h3>
+                    <h3 className="name">
+                        <FullName id={this.state.id} type={this.state.type} />
+                    </h3>
                     <div className="data"></div>
                 </div>
             </div>
@@ -58,9 +58,6 @@ class ContactList extends Component {
             .then((data) => data.json())
             .then((data) => {
                 if (data.status === "succes") {
-                    data.data.forEach((contact) => {
-                        ContactList.byId[contact.id] = contact;
-                    });
                     this.setState({ contacts: data.data });
                 } else {
                     console.error("Failed to get contacts");

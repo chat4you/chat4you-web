@@ -1,12 +1,19 @@
 import { Component, Fragment } from "react";
 import "./conversation.css";
-import { Message } from ".";
+import { Message, FullName } from ".";
 
 class Conversation extends Component {
     constructor(props) {
         super(props);
         this.state = { messages: [], online: [], info: null, open: false };
         this.socket = props.socket;
+    }
+
+    shouldComponentUpdate(newProps, newState) {
+        if (newProps !== this.props || newState || this.state) {
+            return true;
+        }
+        return false;
     }
 
     componentDidMount() {
@@ -51,15 +58,18 @@ class ConversationManager extends Component {
     static instance;
 
     static async open(data, loop = false) {
-        ConversationManager.current &&
-            ConversationManager.current.setState({ open: false });
         // The conversation will unlock itself when it got all messages
-        ConversationManager.instance.setState({ open: false });
 
         if (data.id in ConversationManager.byId) {
-            ConversationManager.byId[data.id].setState({ open: true });
-            ConversationManager.current = ConversationManager.byId[data.id];
+            if (
+                ConversationManager.current !==
+                ConversationManager.byId[data.id]
+            ) {
+                ConversationManager.byId[data.id].setState({ open: true });
+                ConversationManager.current = ConversationManager.byId[data.id];
+            }
         } else if (!loop) {
+            ConversationManager.instance.setState({ open: false });
             // Wait for the conversation to load
             await ConversationManager.instance.setState((state) => ({
                 conversations: state.conversations.concat(data),
@@ -114,7 +124,7 @@ class ConversationManager extends Component {
 
     buttonSubmit() {
         let text = this.messageInput.value;
-        if (/\s/.test(text)) return;
+        if (!/\S/.test(text)) return;
         let message = {
             conversation: ConversationManager.current.props.id,
             type: "text",
@@ -136,11 +146,17 @@ class ConversationManager extends Component {
             <Fragment>
                 <div className="messages-header">
                     <h1 id="chat-name">
-                        {ConversationManager.current
-                            ? this.props.ctl.byId[
-                                  ConversationManager.current.props.id
-                              ].name
-                            : `Welcome, ${this.props.me?.name || "..."}!`}
+                        {ConversationManager.current ? (
+                            <FullName
+                                id={
+                                    this.props.ctl.byId[
+                                        ConversationManager.current.props.id
+                                    ].state.id
+                                }
+                            />
+                        ) : (
+                            `Welcome, ${this.props.me?.name || "..."}!`
+                        )}
                     </h1>
                 </div>
                 <div className="conversations">
