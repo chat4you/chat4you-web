@@ -60,33 +60,32 @@ class ConversationManager extends Component {
     static async open(data, loop = false) {
         // The conversation will unlock itself when it got all messages
 
-        if (data.id in ConversationManager.byId) {
-            if (
-                ConversationManager.current !==
-                ConversationManager.byId[data.id]
-            ) {
-                ConversationManager.byId[data.id].setState({ open: true });
-                ConversationManager.current = ConversationManager.byId[data.id];
+        if (data.id in this.byId) {
+            if (this.instance.state.current !== this.byId[data.id]) {
+                this.byId[data.id].setState({ open: true });
+                this.instance.setState({
+                    current: this.byId[data.id],
+                });
             }
         } else if (!loop) {
-            ConversationManager.instance.setState({ open: false });
+            this.instance.setState({ open: false });
             // Wait for the conversation to load
-            await ConversationManager.instance.setState((state) => ({
+            await this.instance.setState((state) => ({
                 conversations: state.conversations.concat(data),
             }));
             // Re-open with 'loop' set to true to prevent looping
-            ConversationManager.open(data, (loop = true));
+            this.open(data, (loop = true));
         } else {
             throw new Error("Failed to open conversation, loop");
         }
     }
 
     static async addMessage(message) {
-        if (!(message.id in ConversationManager.byId)) {
+        if (!(message.id in this.byId)) {
             // TBD: move contact to top and show notification
             return;
         }
-        let conversation = ConversationManager.byId[message.id];
+        let conversation = this.byId[message.id];
         await conversation?.setState((state) => ({
             messages: state.messages.concat(message.data),
         }));
@@ -94,12 +93,12 @@ class ConversationManager extends Component {
     }
 
     static sendMessage(message) {
-        ConversationManager.instance.sendMessage(message);
+        this.instance.sendMessage(message);
     }
 
     constructor(props) {
         super(props);
-        this.state = { conversations: [], open: false };
+        this.state = { conversations: [], open: false, current: false };
         this.socket = this.props.socket;
         this.textSubmit = this.textSubmit.bind(this);
         this.buttonSubmit = this.buttonSubmit.bind(this);
@@ -126,7 +125,7 @@ class ConversationManager extends Component {
         let text = this.messageInput.value;
         if (!/\S/.test(text)) return;
         let message = {
-            conversation: ConversationManager.current.props.id,
+            conversation: ConversationManager.instance.state.current.props.id,
             type: "text",
             content: text,
         };
@@ -146,11 +145,12 @@ class ConversationManager extends Component {
             <Fragment>
                 <div className="messages-header">
                     <h1 id="chat-name">
-                        {ConversationManager.current ? (
+                        {ConversationManager.instance.state.current ? (
                             <FullName
                                 id={
                                     this.props.ctl.byId[
-                                        ConversationManager.current.props.id
+                                        ConversationManager.instance.state
+                                            .current.props.id
                                     ].state.id
                                 }
                             />

@@ -2,19 +2,19 @@ import { Component } from "react";
 import "./login.css";
 
 class Login extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = { name: "", pass: "", message: "" };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    handleChange(e) {
+    handleChange (e) {
         this.setState({ [e.target.name]: e.target.value });
     }
 
-    handleSubmit() {
-        var usrOk, passOk;
+    handleSubmit () {
+        let usrOk, passOk;
         if (/\S/i.test(this.state.pass)) {
             passOk = true;
         } else {
@@ -28,14 +28,14 @@ class Login extends Component {
             this.setState({ message: "Invalid username" });
         }
         if (usrOk && passOk) {
-            var authContent = {
+            const authContent = {
                 password: this.state.pass,
                 username: this.state.name,
             };
-            var server = new XMLHttpRequest();
+            const server = new XMLHttpRequest();
             server.onreadystatechange = () => {
                 if (server.readyState === 4 && server.status === 200) {
-                    var decoded = JSON.parse(server.responseText);
+                    const decoded = JSON.parse(server.responseText);
                     if (decoded.login) {
                         this.props.setLogin(true);
                     } else {
@@ -49,7 +49,7 @@ class Login extends Component {
         }
     }
 
-    render() {
+    render () {
         return (
             <div className="login-container">
                 <div className="login">

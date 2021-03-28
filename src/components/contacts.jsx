@@ -1,26 +1,59 @@
 import { Component } from "react";
-import "./contacts.css";
+import "./contacts.scss";
 import { FullName, ProfileImage } from ".";
 
 class Contact extends Component {
     constructor(props) {
         super(props);
-        this.state = { type: "", id: null };
+        this.state = { type: "", id: null, accepted: false };
+        this.userAction = this.userAction.bind(this);
     }
 
     componentDidMount() {
-        const conversation = this.props.data;
-        if (conversation.type === "chat") {
+        const contact = this.props.data;
+        if (contact.type === "chat") {
             this.setState({
                 id:
-                    conversation.members[
-                        Math.abs(
-                            conversation.members.indexOf(this.props.me.id) - 1
-                        )
+                    contact.members[
+                        Math.abs(contact.members.indexOf(this.props.me.id) - 1)
                     ],
                 type: "chat",
+                accepted:
+                    contact.accepted[contact.members.indexOf(this.props.me.id)],
             });
-            ContactList.byId[conversation.id] = this;
+            ContactList.byId[contact.id] = this;
+        }
+        this.props.socket.on("acceptReject", (data) => {
+            if (data.status !== "succes") {
+                throw new Error(
+                    `Error while accepting/rejecting user ${data.message}`
+                );
+            } else {
+                if (data.action === "accept") {
+                    this.setState({ accepted: true });
+                } else {
+                    delete ContactList.byId[contact.id];
+                    ContactList.instance.setState((state) => {
+                        state.contacts.splice(
+                            state.contacts.indexof(this.props.data),
+                            1
+                        );
+                        return { contacts: state.contacts }; // removes this
+                    });
+                }
+            }
+        });
+    }
+
+    userAction(action) {
+        if (!this.accepted) {
+            this.props.socket.emit("acceptReject", {
+                id: this.props.data.id,
+                action: action,
+            });
+            return;
+        } else {
+            throw new Error("Not supported yet");
         }
     }
 
@@ -39,6 +72,22 @@ class Contact extends Component {
                     </h3>
                     <div className="data"></div>
                 </div>
+                {!this.state.accepted && (
+                    <div className="accept-reject">
+                        <div
+                            className="accept"
+                            onClick={() => this.userAction("accept")}
+                        >
+                            Accept
+                        </div>
+                        <div
+                            className="reject"
+                            onClick={() => this.userAction("reject")}
+                        >
+                            Reject
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
@@ -46,11 +95,13 @@ class Contact extends Component {
 
 class ContactList extends Component {
     static byId = {};
+    static instance;
     constructor(props) {
         super(props);
         this.state = {
             contacts: [],
         };
+        ContactList.instance = this;
     }
 
     componentDidMount() {
@@ -73,6 +124,7 @@ class ContactList extends Component {
                         key={contact.id}
                         data={contact}
                         me={this.props.me}
+                        socket={this.props.socket}
                         onClick={() => {
                             this.props.conversation.open(contact);
                         }}

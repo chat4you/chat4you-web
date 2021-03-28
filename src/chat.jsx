@@ -13,7 +13,7 @@ import "./chat.css";
 import io from "socket.io-client";
 
 class Chat extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             me: {},
@@ -24,7 +24,7 @@ class Chat extends Component {
         this.logout = this.logout.bind(this);
     }
 
-    componentDidMount() {
+    componentDidMount () {
         fetch("/api/me")
             .then((data) => data.json())
             .then((data) => {
@@ -33,35 +33,33 @@ class Chat extends Component {
                 });
             });
 
-        this.socket = io();
+        this.socket = io({ auth: { cookies: document.cookie } });
         this.socket.on("auth", (data) => {
             if (data.status === "succes") {
                 this.setState({ socketReady: true });
             } else {
                 this.setState({ socketReady: false });
-                alert("Cookie verification failed!");
                 document.cookie = "";
                 document.location.reload();
             }
         });
         this.socket.io.on("reconnect", () => {
-            this.socket = io();
+            this.socket = io({ auth: { cookies: document.cookie } });
             this.componentDidMount();
             this.setState({ socketReady: true });
         });
         this.socket.on("disconnect", () => {
             this.setState({ socketReady: false });
         });
-        this.socket.emit("auth", document.cookie);
         this.setState({ socketReady: true });
     }
 
-    async logout() {
+    async logout () {
         await fetch("/api/logout");
         this.props.setLogin(false);
     }
 
-    render() {
+    render () {
         if (!this.state.socketReady) {
             return <Loader />;
         } else {
@@ -104,7 +102,7 @@ class Chat extends Component {
                             </div>
                             <ContactList
                                 me={this.state.me}
-                                socket={this.state.socketReady && this.socket}
+                                socket={this.socket}
                                 conversation={ConversationManager}
                             />
                         </div>
@@ -112,7 +110,7 @@ class Chat extends Component {
                     </div>
                     <div className="dialogs">
                         <Dialogs.EditProfile me={this.state.me} />
-                        <Dialogs.RequestContact />
+                        <Dialogs.RequestContact socket={this.socket} />
                     </div>
                 </div>
             );
