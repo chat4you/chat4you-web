@@ -1,0 +1,12 @@
+.request-contact {
+    display: flex;
+    #add-contact-input {
+        flex: 1 0;
+        margin-right: 5px;
+    }
+    #add-contact-enter:disabled {
+        background-color: gray;
+        border: none;
+    }
+}
+

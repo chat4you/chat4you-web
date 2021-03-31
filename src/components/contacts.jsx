@@ -35,7 +35,7 @@ class Contact extends Component {
                     delete ContactList.byId[contact.id];
                     ContactList.instance.setState((state) => {
                         state.contacts.splice(
-                            state.contacts.indexof(this.props.data),
+                            state.contacts.indexOf(this.props.data),
                             1
                         );
                         return { contacts: state.contacts }; // removes this
@@ -45,7 +45,8 @@ class Contact extends Component {
         });
     }
 
-    userAction(action) {
+    userAction(action, e) {
+        e.stopPropagation()
         if (!this.accepted) {
             this.props.socket.emit("acceptReject", {
                 id: this.props.data.id,
@@ -76,13 +77,13 @@ class Contact extends Component {
                     <div className="accept-reject">
                         <div
                             className="accept"
-                            onClick={() => this.userAction("accept")}
+                            onClick={(e) => this.userAction("accept", e)}
                         >
                             Accept
                         </div>
                         <div
                             className="reject"
-                            onClick={() => this.userAction("reject")}
+                            onClick={(e) => this.userAction("reject", e)}
                         >
                             Reject
                         </div>

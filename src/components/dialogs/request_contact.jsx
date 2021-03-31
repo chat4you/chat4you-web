@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { Dialog } from "../dialog";
-import "./request_contact.css";
+import "./request_contact.scss";
 
 class RequestContact extends Component {
     constructor(props) {
@@ -8,7 +8,7 @@ class RequestContact extends Component {
         if (!this.props.socket) {
             throw new Error("Socket not passed to RequestContact");
         }
-        this.state = { text: "" };
+        this.state = { text: "", inProgress: false };
         this.textChange = this.textChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -21,6 +21,7 @@ class RequestContact extends Component {
                 );
             } else {
                 Dialog.close("request-contact");
+                this.setState({inProgress: false})
                 this.input.value = "";
             }
         });
@@ -36,6 +37,7 @@ class RequestContact extends Component {
                 other: this.state.text,
                 type: "chat",
             });
+            this.setState({inProgress: true})
         }
     }
 
@@ -50,7 +52,7 @@ class RequestContact extends Component {
                     ref={(el) => (this.input = el)}
                     autoFocus
                 />
-                <button id="add-contact-enter" onClick={this.handleSubmit}>
+                <button id="add-contact-enter" onClick={this.handleSubmit} disabled={this.state.inProgress && true}>
                     Request
                 </button>
             </Dialog>
